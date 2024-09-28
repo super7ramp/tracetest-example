@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ "develop", "main" ]
+    branches: [ "develop" ]
   pull_request:
     branches: [ "develop" ]
   workflow_dispatch:
@@ -17,12 +17,19 @@ jobs:
       - name: Run docker-compose
         uses: hoverkraft-tech/compose-action@v2.0.1
         with:
-          compose-file: "compose.yaml"
+          compose-file: compose.yaml
 
       - name: Configure Tracetest CLI
-        run: |
-          curl -L https://raw.githubusercontent.com/kubeshop/tracetest/main/install-cli.sh | bash
-          tracetest configure --server-url http://localhost:11633/
+        uses: kubeshop/tracetest-github-action@v1
+        with:
+          endpoint: http://localhost:11633/
+
+      # Or, if you don't want/can't use the Tracetest GitHub Action:
+
+      #- name: Configure Tracetest CLI
+      #  run: |
+      #    curl -L https://raw.githubusercontent.com/kubeshop/tracetest/main/install-cli.sh | bash
+      #    tracetest configure --server-url http://localhost:11633/
 
       - name: Run tests
         run: tracetest run --file tests/test.yaml
